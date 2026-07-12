@@ -1,14 +1,8 @@
-# Render Blueprint — static site
-# Serves the Commissioner Dr. Dennis Wamalwa website (plain HTML/CSS/JS, no build step).
-# Docs: https://render.com/docs/blueprint-spec
+# Render Blueprint — static site (plain HTML/CSS/JS, no build step)
+# https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: commissioner-wamalwa
     runtime: static
-    buildCommand: "echo 'No build step required — static site'"
+    buildCommand: "echo no build needed"
     staticPublishPath: .
-    pullRequestPreviewsEnabled: false
-    headers:
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
