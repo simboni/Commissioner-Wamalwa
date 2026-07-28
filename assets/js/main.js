@@ -37,7 +37,7 @@
     var nt = e.target.closest("[data-nav-toggle]");
     if (nt) { if (navLinks) navLinks.classList.toggle("open"); return; }
     // close mobile menu on link click
-    if (e.target.closest(".nav-links a") && navLinks) navLinks.classList.remove("open");
+    if (e.target.closest(".nav-links a") && !e.target.closest(".mega-trigger") && navLinks) navLinks.classList.remove("open");
   });
 
   /* ---- Active nav link by page ---- */
@@ -168,7 +168,48 @@
         window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
       });
     }
+    try {
+      var qcat = new URLSearchParams(location.search).get("cat");
+      if (qcat) { var qc = document.querySelector('.chip[data-filter="' + qcat + '"]'); if (qc) { bchips.forEach(function (c) { c.classList.remove("active"); }); qc.classList.add("active"); filter = qcat; } }
+    } catch (e) {}
     render();
+  })();
+
+  /* ---- Mega menu (News & Blog) ---- */
+  (function () {
+    var mega = document.querySelector(".nav-mega");
+    if (!mega) return;
+    var panel = mega.querySelector("[data-mega-panel]");
+    var trigger = mega.querySelector(".mega-trigger");
+    var p = (panel && panel.getAttribute("data-prefix")) || "";
+    var CATS = [["human-rights", "Human Rights"], ["intersex", "Intersex"], ["reforms", "Reforms"], ["events", "Events"], ["partnerships", "Partnerships"], ["awareness", "Awareness"], ["empowerment", "Empowerment"], ["training", "Training &amp; Coaching"], ["outside", "Outside the Country"], ["general", "Updates"]];
+    var FEAT = [
+      ["western-kenya-reparations-exercise", "Reparations, Verification &amp; Public Awareness — Western Kenya", "blog-western-1.jpeg", "3 Jun 2026"],
+      ["workplace-violence-human-rights", "Workplace Violence is a Human Rights Issue", "blog-workplace-1.jpeg", "26 May 2026"],
+      ["mara-university-intersex-lecture", "Mara University: Intersex-Rights Lecture &amp; MOU", "blog-mara-1.jpeg", "15 Apr 2026"]
+    ];
+    if (panel) {
+      var cats = CATS.map(function (c) { return '<a href="' + p + "blog.html?cat=" + c[0] + '"><span class="dot"></span>' + c[1] + "</a>"; }).join("");
+      var stories = FEAT.map(function (f) {
+        return '<a class="mega-story" href="' + p + "blog/" + f[0] + '.html"><img src="' + p + "assets/img/" + f[2] + '" alt="" loading="lazy" /><span><span class="st-t">' + f[1] + '</span><span class="st-d">' + f[3] + "</span></span></a>";
+      }).join("");
+      panel.innerHTML =
+        '<div class="mega-inner">' +
+          '<div class="mega-col"><div class="mega-h">Browse by topic</div><div class="mega-links">' + cats + "</div>" +
+            '<a class="mega-all" href="' + p + 'blog.html">All articles →</a></div>' +
+          '<div class="mega-col mega-featured"><div class="mega-h">Latest stories</div>' + stories + "</div>" +
+          '<div class="mega-col mega-promo"><div class="promo-card"><div class="mega-h">Press &amp; Media</div>' +
+            "<h4>Newsroom &amp; enquiries</h4><p>Statements, interviews and media enquiries for Commissioner Dr. Dennis Wamalwa.</p>" +
+            '<a class="btn btn-primary" href="' + p + 'index.html#contact">Contact the office</a></div></div>' +
+        "</div>";
+    }
+    var desktop = function () { return window.matchMedia("(min-width:901px)").matches; };
+    var closeT;
+    mega.addEventListener("mouseenter", function () { if (desktop()) { clearTimeout(closeT); mega.classList.add("open"); } });
+    mega.addEventListener("mouseleave", function () { if (desktop()) { closeT = setTimeout(function () { mega.classList.remove("open"); }, 160); } });
+    if (trigger) trigger.addEventListener("click", function (e) { if (!desktop()) { e.preventDefault(); mega.classList.toggle("open"); } });
+    document.addEventListener("click", function (e) { if (!mega.contains(e.target)) mega.classList.remove("open"); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") mega.classList.remove("open"); });
   })();
 
   /* ---- Gallery lightbox ---- */
