@@ -56,8 +56,13 @@
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-    reveals.forEach(function (el) { io.observe(el); });
+    }, { threshold: 0, rootMargin: "0px 0px -8% 0px" });
+    reveals.forEach(function (el) {
+      // Elements taller than the viewport can never satisfy a ratio threshold,
+      // so reveal them immediately to avoid staying hidden (e.g. the gallery grid).
+      if (el.getBoundingClientRect().height > window.innerHeight) { el.classList.add("in"); }
+      else { io.observe(el); }
+    });
   }
 
   /* ---- Animated counters ---- */
