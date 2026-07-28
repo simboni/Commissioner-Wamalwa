@@ -474,3 +474,16 @@ section { position: relative; }
 .brand-title { display:block; }
 @media (max-width: 560px){ .hide-sm { display:none !important; } .brand small { display:none; } }
 @media (max-width: 380px){ .brand-title { font-size:.95rem; } }
+
+/* ---------- Blog count + pagination ---------- */
+.blog-count { color: var(--text-dim); font-size:.9rem; margin: 0 0 1.2rem; font-weight:500; }
+.pagination { display:flex; justify-content:center; align-items:center; gap:.4rem; flex-wrap:wrap; margin-top: clamp(2.4rem, 5vw, 3.6rem); }
+.pg-btn {
+  font-family: var(--sans); font-weight:600; font-size:.92rem; min-width:42px; height:42px; padding:0 .8rem;
+  border-radius:11px; border:1px solid var(--border); background:transparent; color: var(--text-dim);
+  cursor:pointer; transition: color .2s, border-color .2s, background .2s, transform .15s; display:grid; place-items:center;
+}
+.pg-btn:hover:not(:disabled) { color: var(--text); border-color: var(--line-strong); transform: translateY(-1px); }
+.pg-btn.active { background: var(--gold); color:#1a1300; border-color: var(--gold); }
+.pg-btn:disabled { opacity:.35; cursor:not-allowed; }
+.pg-ellipsis { color: var(--text-dim); padding:0 .2rem; }

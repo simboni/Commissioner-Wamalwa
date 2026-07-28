@@ -91,9 +91,9 @@
     }
   }
 
-  /* ---- News filter ---- */
+  /* ---- News filter (simple, no pagination) ---- */
   var chips = document.querySelectorAll(".chip[data-filter]");
-  if (chips.length) {
+  if (chips.length && !document.querySelector("[data-blog-grid]")) {
     chips.forEach(function (chip) {
       chip.addEventListener("click", function () {
         chips.forEach(function (c) { c.classList.remove("active"); });
@@ -106,6 +106,70 @@
       });
     });
   }
+
+  /* ---- Blog: filter + pagination (per category) ---- */
+  (function () {
+    var grid = document.querySelector("[data-blog-grid]");
+    if (!grid) return;
+    var PAGE = parseInt(grid.getAttribute("data-page-size") || "9", 10);
+    var cards = Array.prototype.slice.call(grid.querySelectorAll("[data-cat]"));
+    var pager = document.querySelector("[data-blog-pagination]");
+    var countEl = document.querySelector("[data-blog-count]");
+    var bchips = Array.prototype.slice.call(document.querySelectorAll(".chip[data-filter]"));
+    var filter = "all", page = 1;
+    function matches(c) { return filter === "all" || c.getAttribute("data-cat").split(" ").indexOf(filter) !== -1; }
+    function pageList(cur, total) {
+      var a = [];
+      for (var i = 1; i <= total; i++) {
+        if (i === 1 || i === total || (i >= cur - 1 && i <= cur + 1)) a.push(i);
+        else if (a[a.length - 1] !== "…") a.push("…");
+      }
+      return a;
+    }
+    function render() {
+      var filtered = cards.filter(matches);
+      var pages = Math.max(1, Math.ceil(filtered.length / PAGE));
+      if (page > pages) page = pages;
+      cards.forEach(function (c) { c.style.display = "none"; });
+      filtered.slice((page - 1) * PAGE, page * PAGE).forEach(function (c) { c.style.display = ""; });
+      if (countEl) {
+        countEl.textContent = filtered.length + " article" + (filtered.length !== 1 ? "s" : "") +
+          (pages > 1 ? " · page " + page + " of " + pages : "");
+      }
+      if (pager) {
+        if (pages <= 1) { pager.innerHTML = ""; }
+        else {
+          var h = '<button class="pg-btn" data-pg="prev"' + (page === 1 ? " disabled" : "") + ' aria-label="Previous page">‹</button>';
+          pageList(page, pages).forEach(function (n) {
+            h += n === "…" ? '<span class="pg-ellipsis">…</span>'
+              : '<button class="pg-btn pg-num' + (n === page ? " active" : "") + '" data-pg="' + n + '">' + n + "</button>";
+          });
+          h += '<button class="pg-btn" data-pg="next"' + (page === pages ? " disabled" : "") + ' aria-label="Next page">›</button>';
+          pager.innerHTML = h;
+        }
+      }
+    }
+    bchips.forEach(function (ch) {
+      ch.addEventListener("click", function () {
+        bchips.forEach(function (c) { c.classList.remove("active"); });
+        ch.classList.add("active");
+        filter = ch.getAttribute("data-filter"); page = 1; render();
+      });
+    });
+    if (pager) {
+      pager.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-pg]"); if (!b || b.disabled) return;
+        var v = b.getAttribute("data-pg");
+        if (v === "prev") page = Math.max(1, page - 1);
+        else if (v === "next") page = page + 1;
+        else page = parseInt(v, 10);
+        render();
+        var top = grid.getBoundingClientRect().top + window.scrollY - 110;
+        window.scrollTo({ top: top, behavior: reduce ? "auto" : "smooth" });
+      });
+    }
+    render();
+  })();
 
   /* ---- Gallery lightbox ---- */
   var lb = document.querySelector(".lightbox");
